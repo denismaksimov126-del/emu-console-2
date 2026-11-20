@@ -27,45 +27,39 @@ jobs:
       - name: Generate AndroidManifest.xml and base resources
         run: |
           mkdir -p app/src/main/res/values
+          python3 -c '
+          a = "android"
+          c = chr(58)
+          p = a + c
 
-          cat << 'EOF' > app/src/main/res/values/strings.xml
-          <resources>
-              <string name="app_name">EmuConsole</string>
-          </resources>
-          EOF
+          strings = "<resources><string name=\"app_name\">EmuConsole</string></resources>"
+          open("app/src/main/res/values/strings.xml", "w").write(strings)
 
-          cat << 'EOF' > app/src/main/AndroidManifest.xml
-          <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:NS="http://android.com">
-
-              <uses-permission NS:name="android.permission.QUERY_ALL_PACKAGES" />
-
+          manifest = f"""<?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns{c}{a}="http://android.com">
+              <uses-permission {p}name="android.permission.QUERY_ALL_PACKAGES" />
               <application
-                  NS:allowBackup="true"
-                  NS:label="@string/app_name"
-                  NS:supportsRtl="true"
-                  NS:theme="@android:style/Theme.Material.NoActionBar.Fullscreen">
-
+                  {p}allowBackup="true"
+                  {p}label="@string/app_name"
+                  {p}supportsRtl="true"
+                  {p}theme="@{a}{c}style/Theme.Material.NoActionBar.Fullscreen">
                   <activity
-                      NS:name=".MainActivity"
-                      NS:exported="true"
-                      NS:launchMode="singleTask"
-                      NS:stateNotNeeded="true"
-                      NS:screenOrientation="sensorLandscape">
+                      {p}name=".MainActivity"
+                      {p}exported="true"
+                      {p}launchMode="singleTask"
+                      {p}stateNotNeeded="true"
+                      {p}screenOrientation="sensorLandscape">
                       <intent-filter>
-                          <action NS:name="android.intent.action.MAIN" />
-                          <category NS:name="android.intent.category.HOME" />
-                          <category NS:name="android.intent.category.DEFAULT" />
-                          <category NS:name="android.intent.category.LAUNCHER" />
+                          <action {p}name="android.intent.action.MAIN" />
+                          <category {p}name="android.intent.category.HOME" />
+                          <category {p}name="android.intent.category.DEFAULT" />
+                          <category {p}name="android.intent.category.LAUNCHER" />
                       </intent-filter>
                   </activity>
               </application>
-
-          </manifest>
-          EOF
-
-          sed -i 's/NS:/android:/g' app/src/main/AndroidManifest.xml
-          sed -i 's/xmlns:NS/xmlns:android/g' app/src/main/AndroidManifest.xml
+          </manifest>"""
+          open("app/src/main/AndroidManifest.xml", "w").write(manifest)
+          '
 
       - name: Build Debug APK
         run: gradle assembleDebug --stacktrace
