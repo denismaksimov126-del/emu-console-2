@@ -36,33 +36,36 @@ jobs:
 
           cat << 'EOF' > app/src/main/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://android.com">
+          <manifest xmlns:NS="http://android.com">
 
-              <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+              <uses-permission NS:name="android.permission.QUERY_ALL_PACKAGES" />
 
               <application
-                  android:allowBackup="true"
-                  android:label="@string/app_name"
-                  android:supportsRtl="true"
-                  android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen">
+                  NS:allowBackup="true"
+                  NS:label="@string/app_name"
+                  NS:supportsRtl="true"
+                  NS:theme="@android:style/Theme.Material.NoActionBar.Fullscreen">
 
                   <activity
-                      android:name=".MainActivity"
-                      android:exported="true"
-                      android:launchMode="singleTask"
-                      android:stateNotNeeded="true"
-                      android:screenOrientation="sensorLandscape">
+                      NS:name=".MainActivity"
+                      NS:exported="true"
+                      NS:launchMode="singleTask"
+                      NS:stateNotNeeded="true"
+                      NS:screenOrientation="sensorLandscape">
                       <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.HOME" />
-                          <category android:name="android.intent.category.DEFAULT" />
-                          <category android:name="android.intent.category.LAUNCHER" />
+                          <action NS:name="android.intent.action.MAIN" />
+                          <category NS:name="android.intent.category.HOME" />
+                          <category NS:name="android.intent.category.DEFAULT" />
+                          <category NS:name="android.intent.category.LAUNCHER" />
                       </intent-filter>
                   </activity>
               </application>
 
           </manifest>
           EOF
+
+          sed -i 's/NS:/android:/g' app/src/main/AndroidManifest.xml
+          sed -i 's/xmlns:NS/xmlns:android/g' app/src/main/AndroidManifest.xml
 
       - name: Build Debug APK
         run: gradle assembleDebug --stacktrace
