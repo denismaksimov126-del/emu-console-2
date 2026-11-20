@@ -26,40 +26,47 @@ jobs:
 
       - name: Generate AndroidManifest.xml and base resources
         run: |
+          rm -f app/src/main/AndroidManifest.xml
           mkdir -p app/src/main/res/values
           python3 -c '
-          a = "android"
-          c = chr(58)
-          p = a + c
+          import xml.etree.ElementTree as ET
 
-          strings = "<resources><string name=\"app_name\">EmuConsole</string></resources>"
-          open("app/src/main/res/values/strings.xml", "w").write(strings)
+          ns = "http://android.com"
+          ET.register_namespace("android", ns)
+          k_name = "{" + ns + "}" + "".join(["n","a","m","e"])
 
-          manifest = f"""<?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns{c}{a}="http://android.com">
-              <uses-permission {p}name="android.permission.QUERY_ALL_PACKAGES" />
-              <application
-                  {p}allowBackup="true"
-                  {p}label="@string/app_name"
-                  {p}supportsRtl="true"
-                  {p}theme="@{a}{c}style/Theme.Material.NoActionBar.Fullscreen">
-                  <activity
-                      {p}name=".MainActivity"
-                      {p}exported="true"
-                      {p}launchMode="singleTask"
-                      {p}stateNotNeeded="true"
-                      {p}screenOrientation="sensorLandscape">
-                      <intent-filter>
-                          <action {p}name="android.intent.action.MAIN" />
-                          <category {p}name="android.intent.category.HOME" />
-                          <category {p}name="android.intent.category.DEFAULT" />
-                          <category {p}name="android.intent.category.LAUNCHER" />
-                      </intent-filter>
-                  </activity>
-              </application>
-          </manifest>"""
-          open("app/src/main/AndroidManifest.xml", "w").write(manifest)
+          res = ET.Element("resources")
+          st = ET.SubElement(res, "string", {"".join(["n","a","m","e"]): "app_name"})
+          st.text = "EmuConsole"
+          ET.ElementTree(res).write("app/src/main/res/values/strings.xml", encoding="utf-8")
+
+          m = ET.Element("manifest")
+          ET.SubElement(m, "uses-permission", {k_name: "android.permission.QUERY_ALL_PACKAGES"})
+
+          app = ET.SubElement(m, "application", {
+              "{" + ns + "}allowBackup": "true",
+              "{" + ns + "}label": "@string/app_name",
+              "{" + ns + "}supportsRtl": "true",
+              "{" + ns + "}theme": "@android:style/Theme.Material.NoActionBar.Fullscreen"
+          })
+
+          act = ET.SubElement(app, "activity", {
+              k_name: ".MainActivity",
+              "{" + ns + "}exported": "true",
+              "{" + ns + "}launchMode": "singleTask",
+              "{" + ns + "}stateNotNeeded": "true",
+              "{" + ns + "}screenOrientation": "sensorLandscape"
+          })
+
+          flt = ET.SubElement(act, "intent-filter")
+          ET.SubElement(flt, "action", {k_name: "android.intent.action.MAIN"})
+          ET.SubElement(flt, "category", {k_name: "android.intent.category.HOME"})
+          ET.SubElement(flt, "category", {k_name: "android.intent.category.DEFAULT"})
+          ET.SubElement(flt, "category", {k_name: "android.intent.category.LAUNCHER"})
+
+          ET.ElementTree(m).write("app/src/main/AndroidManifest.xml", encoding="utf-8", xml_declaration=True)
           '
+          cat app/src/main/AndroidManifest.xml
 
       - name: Build Debug APK
         run: gradle assembleDebug --stacktrace
